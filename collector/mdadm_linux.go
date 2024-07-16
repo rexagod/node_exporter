@@ -223,7 +223,7 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 	mdraids, err := sysFS.Mdraids()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			level.Debug(c.logger).Log("msg", "Not collecting mdraids, file does not exist", "file", *sysPath)
+			c.logger.Debug("Not collecting mdraids, file does not exist", "file", *sysPath)
 			return ErrNoData
 		}
 

@@ -17,12 +17,13 @@
 package collector
 
 import (
-	"github.com/go-kit/log"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/testutil"
+	"log/slog"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/testutil"
 )
 
 type testMdadmCollector struct {
@@ -37,7 +38,7 @@ func (c testMdadmCollector) Describe(ch chan<- *prometheus.Desc) {
 	prometheus.DescribeByCollect(c, ch)
 }
 
-func NewTestMdadmCollector(logger log.Logger) (prometheus.Collector, error) {
+func NewTestMdadmCollector(logger *slog.Logger) (prometheus.Collector, error) {
 	mc, err := NewMdadmCollector(logger)
 	if err != nil {
 		return testMdadmCollector{}, err
@@ -262,7 +263,10 @@ func TestMdadmStats(t *testing.T) {
         node_md_state{device="md9",state="recovering"} 0
         node_md_state{device="md9",state="resync"} 1
 `
-	logger := log.NewLogfmtLogger(os.Stderr)
+	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+		Level:     slog.LevelError,
+		AddSource: true,
+	}))
 	collector, err := NewMdadmCollector(logger)
 	if err != nil {
 		panic(err)
